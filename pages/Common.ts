@@ -11,7 +11,7 @@ export abstract class CommonPage {
     await this.page.goto(url);
   };
 
-    urlVerification = async (url: any) => {
+  urlVerification = async (url: any) => {
     expect(this.page.url()).toBe(url);
   };
 }

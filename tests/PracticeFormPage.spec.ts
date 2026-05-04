@@ -1,8 +1,10 @@
 import { baseURL } from "../helper/Credentials.ts";
-import { test, expect } from "@playwright/test";
+import { test } from "@playwright/test";
 import PracticeFormPage from "../pages/PracticeFormPage";
-import FullFilledForm from "../utils/FullFilledForm.json";
-import PartiallyFilledForm from "../utils/PartiallyFilledForm.json";
+import {firstName,lastName,email,phone,date,address,randomSubject, invalidNumericPhone, invalidAlphabeticalPhone, invalidSubject} from "../helper/testData.ts"
+import { expectedFullFilledFormData } from "../helper/fullFilledFormdata.ts";
+import { expectedPartFilledFormData } from "../helper/partFilledFormData.ts";
+
 
 let practiceFormPage: PracticeFormPage;
 
@@ -14,110 +16,141 @@ test.beforeEach(async ({ page }) => {
   await practiceFormPage.urlVerification(baseURL);
 });
 
-test.describe("PractiveForm processing", () => {
-  test("Mandatory fields must be filled validation", async () => {
-    await test.step("Fill Firstname, LastName and Email", async () => {
-      await practiceFormPage.InputFirstName("Oleksandr");
-      await practiceFormPage.InputLastName("Ivankiv");
-      await practiceFormPage.InputEmail("oleksandr@test.com");
-    });
-
-    await test.step("Select gender and verify", async () => {
-      await practiceFormPage.ClickMaleGenderRadioButton();
-      await practiceFormPage.VerifyMaleRadioButtonIsChecked();
-    });
-
-    await test.step("Upload Image", async () => {
-      await practiceFormPage.UploadImage();
-    });
-
-    await test.step("Click submit button and verify", async () => {
-      await practiceFormPage.ClickSubmitButton();
-      await practiceFormPage.VerifyCloseButtonIsHidden();
-    });
+test.describe("PracticeForm processing", () => {
+  test("Phone mandatory field is not filled", async () => {
+    await practiceFormPage.inputFirstName(firstName);
+    await practiceFormPage.inputLastName(lastName);
+    await practiceFormPage.clickGenderRadioButton();
+    await practiceFormPage.verifyRadioButtonIsChecked();
+    await practiceFormPage.verifyPhoneNumberIsEmpty();
+    await practiceFormPage.verifyFirstNameIsFilled(firstName);
+    await practiceFormPage.verifyLastNameIsFilled(lastName);
+    await practiceFormPage.clickSubmitButton();
+    await practiceFormPage.verifyCloseButtonIsHidden();
   });
 
-  test("Submit wih all fields are filled", async ({}) => {
-    await test.step("Fill Firstname, LastName and Email", async () => {
-      await practiceFormPage.InputFirstName("Oleksandr");
-      await practiceFormPage.InputLastName("Ivankiv");
-      await practiceFormPage.InputEmail("oleksandr@test.com");
-    });
+    test("Invalid Digit Phone validation", async () => {
+    await practiceFormPage.inputFirstName(firstName);
+    await practiceFormPage.inputLastName(lastName);
+    await practiceFormPage.clickGenderRadioButton();
+    await practiceFormPage.inputPhone(invalidNumericPhone);
+    await practiceFormPage.verifyRadioButtonIsChecked();
+    await practiceFormPage.verifyFirstNameIsFilled(firstName);
+    await practiceFormPage.verifyLastNameIsFilled(lastName);
+    await practiceFormPage.verifyPhoneIsFilled(invalidNumericPhone);
+    await practiceFormPage.clickSubmitButton();
+    await practiceFormPage.verifyCloseButtonIsHidden();
+  });
 
-    await test.step("Select gender and verify", async () => {
-      await practiceFormPage.ClickMaleGenderRadioButton();
-      await practiceFormPage.VerifyMaleRadioButtonIsChecked();
-    });
+    test("Invalid Numeric Phone validation", async () => {
+    await practiceFormPage.inputFirstName(firstName);
+    await practiceFormPage.inputLastName(lastName);
+    await practiceFormPage.clickGenderRadioButton();
+    await practiceFormPage.verifyRadioButtonIsChecked();
+    await practiceFormPage.inputPhone(invalidAlphabeticalPhone);
+    await practiceFormPage.verifyFirstNameIsFilled(firstName);
+    await practiceFormPage.verifyLastNameIsFilled(lastName);
+    await practiceFormPage.verifyPhoneIsFilled(invalidAlphabeticalPhone);
+    await practiceFormPage.clickSubmitButton();
+    await practiceFormPage.verifyCloseButtonIsHidden();
+  });
 
-    await test.step("Fill phone and date of birth", async () => {
-      await practiceFormPage.InputPhone("0684444444");
-      await practiceFormPage.InputDateOfBirth("12 Dec 2004");
-    });
+    test("FirstName mandatory field is not filled", async () => {
+    await practiceFormPage.inputLastName(lastName);
+    await practiceFormPage.clickGenderRadioButton();
+    await practiceFormPage.verifyRadioButtonIsChecked();
+    await practiceFormPage.inputPhone(phone);
+    await practiceFormPage.verifyFirstNameIsEmpty();
+    await practiceFormPage.verifyLastNameIsFilled(lastName);
+    await practiceFormPage.verifyPhoneIsFilled(phone);
+    await practiceFormPage.clickSubmitButton();
+    await practiceFormPage.verifyCloseButtonIsHidden();
+  });
 
-    await test.step("Select subject and verify", async () => {
-      await practiceFormPage.SelectSubject("Mat");
-      await practiceFormPage.VerifyRemoveButtonIsVisible();
-    });
+    test("LastName mandatory field is not filled", async () => {
+    await practiceFormPage.inputFirstName(firstName);
+    await practiceFormPage.clickGenderRadioButton();
+    await practiceFormPage.verifyRadioButtonIsChecked();
+    await practiceFormPage.inputPhone(phone);
+    await practiceFormPage.verifyLastNameIsEmpty();
+    await practiceFormPage.verifyFirstNameIsFilled(firstName);
+    await practiceFormPage.verifyPhoneIsFilled(phone);
+    await practiceFormPage.clickSubmitButton();
+    await practiceFormPage.verifyCloseButtonIsHidden();
+  });
 
-    await test.step("Select Hobby and verify", async () => {
-      await practiceFormPage.ClickMusicHobbyCheckbox();
-      await practiceFormPage.VerifyMusicHobbiesCheckboxIsChecked();
-    });
+    test("Gender mandatory field is not checked", async () => {
+    await practiceFormPage.inputFirstName(firstName);
+    await practiceFormPage.inputLastName(lastName);
+    await practiceFormPage.verifyRadioButtonIsNotChecked();
+    await practiceFormPage.inputPhone(phone);
+    await practiceFormPage.verifyFirstNameIsFilled(firstName);
+    await practiceFormPage.verifyLastNameIsFilled(lastName);
+    await practiceFormPage.verifyPhoneIsFilled(phone);
+    await practiceFormPage.clickSubmitButton();
+    await practiceFormPage.verifyCloseButtonIsHidden();
+  });
 
-    await test.step("Upload image", async () => {
-      await practiceFormPage.UploadImage();
-    });
+    test("Invalid Subject select validation", async () => {
+    await practiceFormPage.clickGenderRadioButton();
+    await practiceFormPage.inputPhone(phone);
+    await practiceFormPage.selectSubject(invalidSubject);
+    await practiceFormPage.verifyRemoveButtonIsHidden();
+    await practiceFormPage.verifyRadioButtonIsChecked();
+    await practiceFormPage.verifyPhoneIsFilled(phone);
+    await practiceFormPage.clickSubmitButton();
+    await practiceFormPage.verifyCloseButtonIsHidden();
+  });
 
-    await test.step("Fill address, select state and city", async () => {
-      await practiceFormPage.InputCurrentAddress("5 World Way");
-      await practiceFormPage.SelectStateDropdownUttarPradesh();
-      await practiceFormPage.SelectCityDropdownMerrut();
-    });
-
-    await test.step("Click submit button and verify", async () => {
-      await practiceFormPage.ClickSubmitButton();
-      await practiceFormPage.VerifyCloseButtonIsVisible();
-    });
-
-    await test.step("verify form", async () => {
-      await practiceFormPage.VerifySubmittedForm(FullFilledForm);
-    });
+  test("Submit with all fields are filled", async ({}) => {
+    await practiceFormPage.inputFirstName(firstName);
+    await practiceFormPage.inputLastName(lastName);
+    await practiceFormPage.inputEmail(email);
+    await practiceFormPage.clickGenderRadioButton();
+    await practiceFormPage.verifyRadioButtonIsChecked();
+    await practiceFormPage.inputPhone(phone);
+    await practiceFormPage.inputDateOfBirth(date);
+    await practiceFormPage.selectSubject(randomSubject);
+    await practiceFormPage.verifyRemoveButtonIsVisible();
+    await practiceFormPage.clickHobbyCheckbox();
+    await practiceFormPage.verifyHobbiesCheckboxIsChecked();
+    await practiceFormPage.uploadImage();
+    await practiceFormPage.inputCurrentAddress(address);
+    await practiceFormPage.verifyStateDropdownIsEnabled();
+    await practiceFormPage.verifyCityDropdownIsDisabled();
+    await practiceFormPage.selectStateDropdown();
+    await practiceFormPage.verifyCityDropdownIsEnabled();
+    await practiceFormPage.selectCityDropdown();
+    await practiceFormPage.verifyFirstNameIsFilled(firstName);
+    await practiceFormPage.verifyLastNameIsFilled(lastName);
+    await practiceFormPage.verifyEmailIsFilled(email);
+    await practiceFormPage.verifyPhoneIsFilled(phone);
+    await practiceFormPage.verifyDateOfBirthIsFilled(date);
+    await practiceFormPage.verifyCurrentAddressIsFilled(address);
+    await practiceFormPage.clickSubmitButton();
+    await practiceFormPage.verifyCloseButtonIsVisible();
+    await practiceFormPage.verifySubmittedForm(expectedFullFilledFormData);
   });
 
   test("Submit with partially filled form", async () => {
-    await test.step("Fill Firstname, LastName and Email", async () => {
-      await practiceFormPage.InputFirstName("Oleksandr");
-      await practiceFormPage.InputLastName("Ivankiv");
-      await practiceFormPage.InputEmail("oleksandr@test.com");
-    });
-
-    await test.step("Select gender and verify", async () => {
-      await practiceFormPage.ClickMaleGenderRadioButton();
-      await practiceFormPage.VerifyMaleRadioButtonIsChecked();
-    });
-
-    await test.step("Fill phone and date of birth", async () => {
-      await practiceFormPage.InputPhone("0684444444");
-      await practiceFormPage.InputDateOfBirth("12 Dec 2004");
-    });
-
-    await test.step("Select subject and verify", async () => {
-      await practiceFormPage.SelectSubject("Mat");
-      await practiceFormPage.VerifyRemoveButtonIsVisible();
-    });
-
-    await test.step("Select Hobby and verify", async () => {
-      await practiceFormPage.ClickMusicHobbyCheckbox();
-      await practiceFormPage.VerifyMusicHobbiesCheckboxIsChecked();
-    });
-
-    await test.step("Click submit button and verify", async () => {
-      await practiceFormPage.ClickSubmitButton();
-      await practiceFormPage.VerifyCloseButtonIsVisible();
-    });
-
-    await test.step("verify form", async () => {
-      await practiceFormPage.VerifySubmittedForm(PartiallyFilledForm);
-    });
+    await practiceFormPage.inputFirstName(firstName);
+    await practiceFormPage.inputLastName(lastName);
+    await practiceFormPage.inputEmail(email);
+    await practiceFormPage.clickGenderRadioButton();
+    await practiceFormPage.verifyRadioButtonIsChecked();
+    await practiceFormPage.inputPhone(phone);
+    await practiceFormPage.inputDateOfBirth(date);
+    await practiceFormPage.selectSubject(randomSubject);
+    await practiceFormPage.verifyRemoveButtonIsVisible();
+    await practiceFormPage.clickHobbyCheckbox();
+    await practiceFormPage.verifyHobbiesCheckboxIsChecked();
+    await practiceFormPage.verifyFirstNameIsFilled(firstName);
+    await practiceFormPage.verifyLastNameIsFilled(lastName);
+    await practiceFormPage.verifyEmailIsFilled(email);
+    await practiceFormPage.verifyPhoneIsFilled(phone);
+    await practiceFormPage.verifyDateOfBirthIsFilled(date);
+    await practiceFormPage.clickSubmitButton();
+    await practiceFormPage.verifyCloseButtonIsVisible();
+    await practiceFormPage.verifySubmittedForm(expectedPartFilledFormData);
   });
 });
