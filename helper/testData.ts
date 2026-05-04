@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { format } from "date-fns";
-import { selectedCity, selectedState } from "./SelectStateHelper";
 
 enum Gender {
   Male = "Male",

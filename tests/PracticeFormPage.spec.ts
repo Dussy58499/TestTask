@@ -2,7 +2,7 @@ import { baseURL } from "../helper/Credentials.ts";
 import { test } from "@playwright/test";
 import PracticeFormPage from "../pages/PracticeFormPage";
 import {firstName,lastName,email,phone,date,address,randomSubject, invalidNumericPhone, invalidAlphabeticalPhone, invalidSubject} from "../helper/testData.ts"
-import { expectedFullFilledFormData } from "../helper/fullFilledFormdata.ts";
+import { expectedFullFilledFormData } from "../helper/fullFilledFormData.ts";
 import { expectedPartFilledFormData } from "../helper/partFilledFormData.ts";
 
 
