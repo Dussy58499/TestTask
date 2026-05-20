@@ -34,12 +34,12 @@ export const selectedState = faker.helpers.enumValue(States);
 let city = "";
 
 if (selectedState === States.NCR) {
-   city = faker.helpers.enumValue(CitiesNCR);
+  city = faker.helpers.enumValue(CitiesNCR);
 } else if (selectedState === States.UttarPradesh) {
-   city = faker.helpers.enumValue(CitiesUttarPradesh);
+  city = faker.helpers.enumValue(CitiesUttarPradesh);
 } else if (selectedState === States.Haryana) {
-   city = faker.helpers.enumValue(CitiesHaryana);
+  city = faker.helpers.enumValue(CitiesHaryana);
 } else if (selectedState === States.Rajasthan) {
-   city = faker.helpers.enumValue(CitiesRajasthan);
+  city = faker.helpers.enumValue(CitiesRajasthan);
 }
 export const selectedCity = city;
